@@ -35,6 +35,15 @@ module.exports = class TagFromFoldersPlugin extends Plugin {
         return true;
       },
     });
+
+    // Añadir nuevo comando para procesar toda la vault
+    this.addCommand({
+      id: "add-tags-to-entire-vault",
+      name: "Añadir tags a toda la vault",
+      callback: () => {
+        this.addTagsToVault();
+      },
+    });
   }
 
   // Función que añade los tags desde las carpetas
@@ -48,10 +57,17 @@ module.exports = class TagFromFoldersPlugin extends Plugin {
     }
   }
 
+  // Nuevo método para añadir tags a todos los archivos de la vault
+  async addTagsToVault() {
+    const root = this.app.vault.getRoot(); // Obtener el directorio raíz de la vault
+    await this.processFolder(root); // Procesar todo el vault desde la raíz
+    new Notice("Tags añadidos a todos los archivos en la vault.");
+  }
+
   // Recorrer una carpeta y sus subcarpetas para procesar todos los archivos .md
   async processFolder(folder) {
     const files = folder.children;
-    
+
     for (const child of files) {
       if (child.children) {
         // Si es una subcarpeta, procesarla recursivamente
@@ -87,7 +103,7 @@ module.exports = class TagFromFoldersPlugin extends Plugin {
         if (updatedContent !== fileContent) {
           await this.app.vault.modify(file, updatedContent);
         }
-        if (aviso){
+        if (aviso) {
           new Notice(`Tag añadido al archivo ${file.name}`);
         }
       } else {
