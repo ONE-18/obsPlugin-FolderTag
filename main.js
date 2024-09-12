@@ -44,7 +44,7 @@ module.exports = class TagFromFoldersPlugin extends Plugin {
       await this.processFolder(file);
     } else {
       // Si se selecciona un archivo, aplicar la lógica de añadir tags
-      await this.addTagsToFile(file);
+      await this.addTagsToFile(file, true);
     }
   }
 
@@ -58,7 +58,7 @@ module.exports = class TagFromFoldersPlugin extends Plugin {
         await this.processFolder(child);
       } else if (child.extension === "md") {
         // Si es un archivo .md, añadirle los tags
-        await this.addTagsToFile(child);
+        await this.addTagsToFile(child, false);
       }
     }
 
@@ -66,7 +66,7 @@ module.exports = class TagFromFoldersPlugin extends Plugin {
   }
 
   // Función para añadir tags a un archivo individual
-  async addTagsToFile(file) {
+  async addTagsToFile(file, aviso) {
     const vaultPath = this.app.vault.getRoot().path;
     const filePath = "/" + file.path;
 
@@ -87,8 +87,9 @@ module.exports = class TagFromFoldersPlugin extends Plugin {
         if (updatedContent !== fileContent) {
           await this.app.vault.modify(file, updatedContent);
         }
-
-        new Notice(`Tag añadido al archivo ${file.name}`);
+        if (aviso){
+          new Notice(`Tag añadido al archivo ${file.name}`);
+        }
       } else {
         new Notice(`El archivo ${file.name} no está en una subcarpeta.`);
       }
